@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RM Cendol Dawet | Avengers of Desa Abit HQ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Oswald:wght@500;700&display=swap');
+        
+        :root {
+            --marvel-red: #ed1d24;
+            --tech-cyan: #22d3ee;
+            --gold: #fbbf24;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #020617;
+            color: white;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        .font-marvel { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: -0.02em; }
+
+        .hero-bg {
+            background: linear-gradient(rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 1)), 
+                        url('https://images.unsplash.com/photo-1534802046520-4f27db7f3ae5?auto=format&fit=crop&q=80&w=2000');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+        }
+
+        .hero-card {
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .hero-card:hover {
+            transform: scale(1.05) translateY(-10px);
+            border-color: var(--card-color);
+            box-shadow: 0 0 40px var(--card-color-alpha);
+        }
+
+        /* Scan Line Effect */
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, transparent, var(--card-color), transparent);
+            z-index: 20;
+            animation: scan 3s infinite linear;
+            display: none;
+        }
+
+        .hero-card:hover .scan-line { display: block; }
+
+        .pks-badge {
+            background: linear-gradient(90deg, #ed1d24, #7f1d1d);
+            clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%);
+        }
+
+        /* Modal Transitions */
+        #hero-modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-content {
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #hero-modal.active .modal-content { transform: scale(1); }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #ed1d24; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Modal Detail Punggawa -->
+    <div id="hero-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/95 opacity-0 invisible">
+        <div class="modal-content relative max-w-4xl w-full glass-card rounded-[2rem] overflow-hidden flex flex-col md:flex-row shadow-2xl border-2">
+            <button onclick="closeModal()" class="absolute top-6 right-6 z-10 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-600 transition">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="modal-img-container" class="w-full md:w-1/2 h-80 md:h-auto bg-slate-900">
+                <img id="modal-img" src="" class="w-full h-full object-cover">
+            </div>
+            <div class="w-full md:w-1/2 p-10 flex flex-col justify-center">
+                <div id="modal-badge" class="inline-block px-4 py-1 rounded-sm text-[10px] font-black tracking-widest uppercase mb-4 w-fit"></div>
+                <h2 id="modal-title" class="text-5xl font-marvel mb-2"></h2>
+                <h4 id="modal-subtitle" class="text-xl font-bold text-slate-400 mb-6 italic"></h4>
+                <div class="h-1 w-20 bg-red-600 mb-8"></div>
+                <p id="modal-desc" class="text-slate-300 leading-relaxed text-lg mb-8"></p>
+                <div class="grid grid-cols-3 gap-4 border-t border-white/10 pt-8">
+                    <div class="text-center">
+                        <p class="text-[10px] text-slate-500 font-bold uppercase mb-1">Power</p>
+                        <p id="stat-power" class="text-xl font-marvel"></p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[10px] text-slate-500 font-bold uppercase mb-1">Speed</p>
+                        <p id="stat-speed" class="text-xl font-marvel"></p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[10px] text-slate-500 font-bold uppercase mb-1">Stamina</p>
+                        <p id="stat-stamina" class="text-xl font-marvel"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="bg-red-600 px-3 py-1 skew-x-[-12deg]">
+                    <span class="text-white font-black text-2xl tracking-tighter inline-block skew-x-[12deg]">ABIT</span>
+                </div>
+                <div class="hidden sm:block">
+                    <p class="text-[10px] font-black tracking-[0.3em] text-red-500 leading-none mb-1 uppercase">Strategic Food Division</p>
+                    <p class="text-xs font-bold text-white leading-none tracking-widest uppercase">PKS KSD Village</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-8 font-black text-[10px] uppercase tracking-[0.2em]">
+                <a href="#tim" class="text-slate-400 hover:text-white transition">Avengers</a>
+                <a href="#menu-utama" class="text-slate-400 hover:text-white transition">Arsenal</a>
+                <a href="#reservasi" class="bg-red-600 text-white px-8 py-3 rounded-sm hover:scale-105 transition-all shadow-lg shadow-red-600/30">Initiative</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg min-h-screen flex flex-col items-center justify-center px-6 text-center relative pt-20">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 pointer-events-none"></div>
+        <div class="max-w-5xl z-10">
+            <div class="inline-flex items-center pks-badge text-white px-10 py-2 text-[10px] font-black mb-8 tracking-[0.4em] uppercase">
+                Abit Intelligence Agency Present
+            </div>
+            <h1 class="text-6xl md:text-[140px] font-marvel mb-4 leading-none italic">
+                THE <span class="text-red-600">PUNGGAWA</span>
+            </h1>
+            <p class="text-slate-400 max-w-3xl mx-auto text-lg md:text-2xl font-light mb-16 uppercase tracking-[0.3em]">
+                Gathering Earth's <span class="text-white border-b-2 border-red-600">Tastiest</span> Heroes.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-6">
+                <a href="#tim" class="bg-white text-black px-12 py-5 font-black hover:bg-red-600 hover:text-white transition-all duration-300 tracking-[0.2em] text-sm">IDENTIFY TEAM</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Avengers (Superhero Grid) -->
+    <section id="tim" class="py-32 bg-slate-950 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-24 gap-6">
+                <div>
+                    <h3 class="text-red-600 font-black uppercase tracking-[0.5em] text-xs mb-4">S.H.I.E.L.D Files</h3>
+                    <h2 class="text-5xl md:text-7xl font-marvel italic">Active Personnel</h2>
+                </div>
+                <p class="text-slate-500 text-sm max-w-sm uppercase font-bold tracking-widest">Klik pada profil agen untuk otentikasi data biometrik dan detail kekuatan.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6" id="hero-container">
+                <!-- Data akan di-inject lewat JS untuk kemudahan pengelolaan -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu Section (Enhanced) -->
+    <section id="menu-utama" class="py-32 bg-slate-900/30 border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-24">
+                <h3 class="text-red-600 font-black uppercase tracking-[0.8em] text-[10px] mb-4">Tactical Sustenance</h3>
+                <h2 class="text-5xl md:text-8xl font-marvel italic leading-none">THE ARSENAL</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Heavy Combat (Food) -->
+                <div class="space-y-8">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="h-px bg-red-600 flex-grow"></div>
+                        <h4 class="font-marvel text-2xl italic tracking-widest">Heavy Artillery</h4>
+                        <div class="h-px bg-red-600 flex-grow"></div>
+                    </div>
+
+                    <!-- Menu Item -->
+                    <div class="group flex gap-6 items-center p-6 glass-card rounded-2xl hover:border-red-600/50 transition relative overflow-hidden">
+                        <div class="w-32 h-32 rounded-xl overflow-hidden shrink-0 border border-white/10">
+                            <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        </div>
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-center mb-1">
+                                <h5 class="text-xl font-marvel tracking-wider italic">Bebek Mjolnir Bakar</h5>
+                                <span class="text-red-500 font-black">48K</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mb-3 leading-relaxed uppercase">Daging bebek pilihan yang ditempa suhu tinggi reaktor Arc. Gurihnya menghantam seperti palu Thor.</p>
+                            <div class="flex gap-2">
+                                <span class="text-[8px] border border-white/20 px-2 py-0.5 rounded uppercase">Protein +90</span>
+                                <span class="text-[8px] border border-red-600/50 text-red-500 px-2 py-0.5 rounded uppercase">Top Tier</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="group flex gap-6 items-center p-6 glass-card rounded-2xl hover:border-cyan-600/50 transition relative overflow-hidden">
+                        <div class="w-32 h-32 rounded-xl overflow-hidden shrink-0 border border-white/10">
+                            <img src="https://images.unsplash.com/photo-1599307767316-776533da941c?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        </div>
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-center mb-1">
+                                <h5 class="text-xl font-marvel tracking-wider italic">Lele Vibranium Crisp</h5>
+                                <span class="text-cyan-500 font-black">32K</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mb-3 leading-relaxed uppercase">Kerenyahan perisai Wakanda dalam setiap gigitan. Digoreng dengan teknologi presisi tinggi.</p>
+                            <div class="flex gap-2">
+                                <span class="text-[8px] border border-white/20 px-2 py-0.5 rounded uppercase">Crisp 100%</span>
+                                <span class="text-[8px] border border-cyan-600/50 text-cyan-500 px-2 py-0.5 rounded uppercase">Stark Approved</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Support Supply (Drinks) -->
+                <div class="space-y-8">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="h-px bg-green-500 flex-grow"></div>
+                        <h4 class="font-marvel text-2xl italic tracking-widest text-green-500">Bio-Energy Boost</h4>
+                        <div class="h-px bg-green-500 flex-grow"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <!-- Drink Card -->
+                        <div class="glass-card p-6 rounded-2xl group hover:bg-green-500/10 transition">
+                            <div class="h-40 overflow-hidden rounded-lg mb-4">
+                                <img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover">
+                            </div>
+                            <h5 class="text-lg font-marvel mb-2">Cendol Nano-Green</h5>
+                            <p class="text-[10px] text-slate-500 mb-4 uppercase leading-relaxed">Partikel cendol pandan murni untuk regenerasi stamina instan.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-green-500 font-black">15K</span>
+                                <i class="fas fa-plus text-[10px] text-green-500"></i>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6 rounded-2xl group hover:bg-yellow-500/10 transition">
+                            <div class="h-40 overflow-hidden rounded-lg mb-4">
+                                <img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover">
+                            </div>
+                            <h5 class="text-lg font-marvel mb-2">Serum Durian Blast</h5>
+                            <p class="text-[10px] text-slate-500 mb-4 uppercase leading-relaxed">Ekstrak durian konsentrasi tinggi. Ledakan energi untuk indera perasa.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-yellow-500 font-black">25K</span>
+                                <i class="fas fa-bolt text-[10px] text-yellow-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission Control (Form) -->
+    <section id="reservasi" class="py-32 bg-slate-950">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="glass-card p-12 rounded-[3rem] border-b-4 border-red-600 relative overflow-hidden shadow-2xl">
+                <div class="absolute top-0 right-0 p-8 opacity-10">
+                    <i class="fas fa-shield-alt text-[150px]"></i>
+                </div>
+                <div class="text-center mb-12">
+                    <h2 class="text-5xl font-marvel italic mb-2">Initiate <span class="text-red-600">Protocol</span></h2>
+                    <p class="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Reserve Your Table in the Hall of Heroes</p>
+                </div>
+                <form class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <input type="text" placeholder="Callsign (Nama)" class="bg-white/5 border border-white/10 px-8 py-5 rounded-xl outline-none focus:border-red-600 transition uppercase font-bold text-sm">
+                        <input type="number" placeholder="Squad Size" class="bg-white/5 border border-white/10 px-8 py-5 rounded-xl outline-none focus:border-red-600 transition text-sm">
+                    </div>
+                    <select class="w-full bg-white/5 border border-white/10 px-8 py-5 rounded-xl outline-none focus:border-red-600 transition uppercase font-bold text-sm appearance-none">
+                        <option class="bg-slate-900">Misi: Makan Di Tempat</option>
+                        <option class="bg-slate-900">Misi: Pengiriman Udara</option>
+                        <option class="bg-slate-900">Misi: Acara S.H.I.E.L.D</option>
+                    </select>
+                    <button class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-6 rounded-2xl transition shadow-xl shadow-red-600/20 uppercase tracking-[0.3em] text-sm italic">
+                        Assemble the Squad
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-16 border-t border-white/5 bg-slate-950 text-center">
+        <div class="bg-red-600 inline-block px-4 py-1 mb-8 skew-x-[-10deg]">
+            <span class="text-white font-black text-4xl tracking-tighter italic inline-block skew-x-[10deg]">ABIT HQ</span>
+        </div>
+        <p class="text-slate-600 text-[10px] font-black uppercase tracking-[0.5em]">
+            &copy; 2026 Desa Abit Strategic Command. Avengers and All Characters are registered marks of Marvel.
+        </p>
+    </footer>
+
+    <script>
+        const heroes = [
+            {
+                id: 'rafly',
+                name: 'RAFLY',
+                alias: 'The Iron Chef',
+                badge: 'Technology Division',
+                badgeColor: 'bg-yellow-500',
+                color: '#facc15',
+                colorAlpha: 'rgba(250, 204, 21, 0.2)',
+                img: 'https://images.unsplash.com/photo-1542000107-208c5f1f41f4?auto=format&fit=crop&q=80&w=800',
+                desc: 'Otak di balik sistem pembakaran "Arc Reactor" kami. Rafly menggabungkan teknologi presisi Stark dengan resep turun temurun untuk menciptakan panggangan yang tak tertandingi oleh siapa pun di Desa Abit.',
+                stats: { power: '98%', speed: '85%', stamina: '90%' },
+                icon: 'fa-microchip'
+            },
+            {
+                id: 'ushincha',
+                name: 'USHINCHA',
+                alias: 'Sugar Sorceress',
+                badge: 'Alchemy Division',
+                badgeColor: 'bg-red-600',
+                color: '#ef4444',
+                colorAlpha: 'rgba(239, 68, 68, 0.2)',
+                img: 'https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format&fit=crop&q=80&w=800',
+                desc: 'Mampu memanipulasi probabilitas rasa manis. Ushincha tidak hanya membuat hidangan penutup, ia merapal mantra pada setiap porsi dawet sehingga siapa pun yang meminumnya akan merasa seperti berada di dimensi kebahagiaan.',
+                stats: { power: '95%', speed: '80%', stamina: '88%' },
+                icon: 'fa-magic'
+            },
+            {
+                id: 'vanny',
+                name: 'VANNY',
+                alias: 'Cosmic Liaison',
+                badge: 'Strategic Liaison',
+                badgeColor: 'bg-blue-600',
+                color: '#3b82f6',
+                colorAlpha: 'rgba(59, 130, 246, 0.2)',
+                img: 'https://images.unsplash.com/photo-1631520625390-394986161964?auto=format&fit=crop&q=80&w=800',
+                desc: 'Energi murni yang memastikan pergerakan operasional berjalan secepat kecepatan cahaya. Vanny adalah jembatan antara kebutuhan pelanggan dan eksekusi dapur, memastikan tidak ada misi yang gagal.',
+                stats: { power: '92%', speed: '100%', stamina: '96%' },
+                icon: 'fa-bolt'
+            },
+            {
+                id: 'dandi',
+                name: 'DANDI',
+                alias: 'Vibranium Master',
+                badge: 'Logistics Defense',
+                badgeColor: 'bg-purple-600',
+                color: '#a855f7',
+                colorAlpha: 'rgba(168, 85, 247, 0.2)',
+                img: 'https://images.unsplash.com/photo-1620336655055-1216bc52771d?auto=format&fit=crop&q=80&w=800',
+                desc: 'Pengawal rantai pasokan Desa Abit. Dandi mengelola inventaris dengan ketahanan seperti Vibranium. Ia tahu setiap butir beras dan tetes santan di markas, memastikan logistik kita tak tergoyahkan.',
+                stats: { power: '90%', speed: '88%', stamina: '100%' },
+                icon: 'fa-shield-alt'
+            },
+            {
+                id: 'ramli',
+                name: 'RAMLI',
+                alias: 'The First Sentinel',
+                badge: 'Public Relations',
+                badgeColor: 'bg-blue-400',
+                color: '#60a5fa',
+                colorAlpha: 'rgba(96, 165, 250, 0.2)',
+                img: 'https://images.unsplash.com/photo-1623157508752-95f00e21a847?auto=format&fit=crop&q=80&w=800',
+                desc: 'Wajah dari keadilan dan keramahan. Ramli menyambut setiap pengunjung dengan integritas pahlawan sejati. Ia percaya bahwa setiap tamu adalah aset berharga yang harus dilindungi kenyamanannya.',
+                stats: { power: '85%', speed: '82%', stamina: '94%' },
+                icon: 'fa-user-shield'
+            }
+        ];
+
+        const container = document.getElementById('hero-container');
+        const modal = document.getElementById('hero-modal');
+
+        heroes.forEach(hero => {
+            const card = document.createElement('div');
+            card.className = 'hero-card glass-card rounded-2xl p-4 group relative overflow-hidden';
+            card.style.setProperty('--card-color', hero.color);
+            card.style.setProperty('--card-color-alpha', hero.colorAlpha);
+            card.onclick = () => openModal(hero);
+            
+            card.innerHTML = `
+                <div class="scan-line"></div>
+                <div class="relative h-96 mb-6 overflow-hidden rounded-xl border border-white/5">
+                    <img src="${hero.img}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-6 left-6">
+                        <h4 class="text-3xl font-marvel italic">${hero.name}</h4>
+                        <p class="text-[10px] font-black tracking-widest uppercase opacity-70" style="color: ${hero.color}">${hero.alias}</p>
+                    </div>
+                    <div class="absolute top-4 right-4 w-10 h-10 bg-black/50 backdrop-blur-md rounded-lg flex items-center justify-center border border-white/10">
+                        <i class="fas ${hero.icon} text-white text-xs"></i>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        function openModal(hero) {
+            document.getElementById('modal-img').src = hero.img;
+            document.getElementById('modal-title').innerText = hero.name;
+            document.getElementById('modal-subtitle').innerText = hero.alias;
+            document.getElementById('modal-desc').innerText = hero.desc;
+            
+            const badge = document.getElementById('modal-badge');
+            badge.innerText = hero.badge;
+            badge.className = `inline-block px-4 py-1 rounded-sm text-[10px] font-black tracking-widest uppercase mb-4 w-fit text-white ${hero.badgeColor}`;
+            
+            document.getElementById('hero-modal').style.borderColor = hero.color;
+            document.querySelector('.modal-content').style.borderColor = hero.color + '44';
+
+            document.getElementById('stat-power').innerText = hero.stats.power;
+            document.getElementById('stat-speed').innerText = hero.stats.speed;
+            document.getElementById('stat-stamina').innerText = hero.stats.stamina;
+
+            modal.classList.add('active');
+            modal.style.opacity = '1';
+            modal.style.visibility = 'visible';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            modal.style.opacity = '0';
+            modal.style.visibility = 'hidden';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal on click outside
+        modal.onclick = function(e) {
+            if (e.target === modal) closeModal();
+        };
+    </script>
+</body>
+</html>
